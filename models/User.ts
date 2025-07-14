@@ -11,13 +11,14 @@ export interface IUser {
 
 const userSchema = new Schema<IUser>(
     {
-        email: {type: String, required: true, unique: true},
-        password: {types: String, required: true}
+        email: { type: String, required: true, unique: true },
+        password: { type: String, required: true },
     },
     {
-        timestamps:true
+        timestamps: true,
     }
 );
+
 
 userSchema.pre('save', async function(next) {
     if (this.isModified("password")) {
