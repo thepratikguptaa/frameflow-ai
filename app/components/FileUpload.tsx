@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client" // This component must be a client component
 
@@ -49,7 +50,7 @@ const FileUpload = ( {
             const authRes = await fetch("/api/auth/imagekit-auth")
             const auth = await authRes.json()
 
-            await upload({
+            const res = await upload({
                 file,
                 fileName: file.name,
                 publicKey: process.env.NEXT_PUBLIC_PUBLIC_KEY!,
@@ -58,12 +59,20 @@ const FileUpload = ( {
                 signature: auth.signature,
                 
                 onProgress: (event) => {
-                    setProgress((event.loaded / event.total) * 100);
+                    if(event.lengthComputable && onProgress) {
+                        const percent = (event.loaded / event.total) * 100;
+                        onProgress(Math.round(percent))
+                    }
                 },
             });
 
+            onSuccess(res)
+
         } catch (error) {
+            console.error("Uploading failed", error);
             
+        } finally {
+            setUploading(false)
         }
     }
 
@@ -77,8 +86,6 @@ const FileUpload = ( {
             {uploading && (
                 <span>Uploading...</span>
             )}
-            
-            
             
         </>
     );
